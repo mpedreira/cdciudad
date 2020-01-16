@@ -53,10 +53,24 @@ posicion = {
 
 torneos = {
 		"ALEVIN" : "ALEVIN F-8 PRIMERA GALICIA",
+        "ABSOLUTA" : "TERCERA GALICIA",
+        "JUVENIL"  : "JUVENIL SEGUNDA AUTONÓMICA",
+        "ALEVINB"  : "ALEVIN F-8 TERCERA GALICIA",
         "BENJAMIN" : "BENJAMIN F-8 - TERCERA GALICIA",
         "PREBENJAMIN" : "PREBENJAMIN F-8 - TERCERA GALICIA",
         "VETERANO" : "VETERANOS - PRIMERA GALICIA",
         "CADETE" : "CADETE SEGUNDA AUTONOMICA"
+ 	}
+
+alias = {
+		"ALEVIN" : "equipo alevín",
+        "ABSOLUTA" : "Deportivo Ciudad",
+        "JUVENIL"  : "equipo juvenil",
+        "ALEVINB"  : "equipo alevín B",
+        "BENJAMIN" : "equipo benjamin",
+        "PREBENJAMIN" : "equipo prebenjamin",
+        "VETERANO" : "equipo de veteranos",
+        "CADETE" : "equipo cadete"
  	}
 
 ## CONVERTIR ESTO EN FUNCIONES
@@ -148,7 +162,7 @@ def get_group(categoria):
     for i in results:
         # RECUPERAMOS LOS IDs de los EQUIPOS 
         # RECUPERAMOS LOS IDs de los GRUPO 
-        if quita_acentos(i["category"]) == torneos[categoria]:
+        if i["category"] == torneos[categoria]:
             equipo = dict()
             obj = s.get(info_equipo+str(i["idTeam"]))
             get_result = json.loads (normalize( 'NFC',obj.text.replace('callback(','').replace('})','}')))
@@ -171,10 +185,10 @@ def status_intent_response():
 
 def convierte_estadio(estadio):
     if estadio == "Sin Determinar":
-        return " se jugará en un estadio sin confirmar"
+        return " Se jugará en un estadio sin confirmar"
     else:
         result = estadio.replace('Nº','Número ').replace("."," ").replace("TORRE","de la torre")
-        return  " se jugará en el campo " + result
+        return  " Se jugará en el campo " + result
 
 def convierte_hora(fecha):
     if str(fecha.time()) == "00:00:00":
@@ -260,32 +274,32 @@ def ultimo_resultado_response(categoria):
             diferencia = int(score[0]) - int(score[2])
             if diferencia > 0:
                 if diferencia > 2:
-                    resultado = "goleamos"
+                    resultado = "ha goleado"
                 else:
-                    resultado = "ganamos"
+                    resultado = "ha ganado"
             else:
                 if diferencia == 0:
-                    resultado = "empatamos"
+                    resultado = "ha empatado"
                 else:
-                    resultado = "perdimos"
+                    resultado = "ha perdido"
         else:
             rival = convertir_equipo (ultimo_partido["localName"],categoria)
             condicion = "visitante"
             if  diferencia > 0 :
-                resultado = "perdimos"
+                resultado = "ha perdido"
             else:
                 if diferencia == 0:
-                    resultado = "empatamos"
+                    resultado = "ha empatado"
                 else:
                     if diferencia < -2:
-                        resultado = "goleamos"
+                        resultado = "ha goleado"
                     else:
-                        resultado = "ganamos"            
-        if resultado == "ganamos" or resultado == "goleamos":
-            texto = resultado + " como " + condicion + " al " + rival + " " + str(score[0]) + " a " + " " + str(score[2])
+                        resultado = "ha ganado"            
+        if resultado == "ha ganado" or resultado == "ha goleado":
+            texto = "Nuestro " + alias[categoria] + " " + resultado +  " como " + condicion + " " + str(score[0]) + " a " + " " + str(score[2]) +" al " + rival
         else:
-            texto = resultado + " como " + condicion + " contra el " + rival + " " + str(score[0]) + " a " + " " + str(score[2])
-        result["response"] = texto
+            texto = "Nuestro " + alias[categoria] + " " + resultado +  " como " + condicion + " " + str(score[0]) + " a " + " " + str(score[2]) + " contra el " + rival
+        result["response"] = texto.replace("  "," ")
         result["end_session"] = True
         return result 
 
@@ -310,10 +324,11 @@ def clasificacion_response(categoria):
     if cdciudad["idPosition"] != 1:
         diferencia = primero["Puntos"] - cdciudad["Puntos"]
 
-        result["response"] = "Nuestro equipo va " + posicion[str(equipo["idPosition"])] + " a " + str(diferencia) + " puntos del primero"
+        texto = "Nuestro " + alias[categoria] + " va " + posicion[str(equipo["idPosition"])] + " a " + str(diferencia) + " puntos del primero"
     else:
         diferencia = cdciudad["Puntos"] - segundo["Puntos"] 
-        result["response"] = "Nuestro equipo va lider a " + str(diferencia) + " puntos del segundo"
+        texto = "Nuestro "+ alias[categoria] +" va lider a " + str(diferencia) + " puntos del segundo"
+    result["response"] = texto.replace("  "," ")
     result["end_session"] = True
     return result
 
@@ -337,8 +352,8 @@ def proximo_partido_response(categoria):
     else:
         rival = convertir_equipo (proxima_jornada["localName"],categoria)
 
-    partido = "El próximo partido contra el " + rival + convierte_estadio(estadio) + " el día " + dia + " de " + mes +  convierte_hora(fecha)
-    result["response"] = partido
+    partido = "El próximo partido de nuestro " + alias[categoria] + " será  contra el " + rival + ". " + convierte_estadio(estadio) + " el día " + dia + " de " + mes +  convierte_hora(fecha)
+    result["response"] = partido.replace("  "," ")
     result["end_session"] = True
     result["card_title"] = "2"
     return result
@@ -359,6 +374,6 @@ def lambda_handler(event, context):
     
 #def lambda_handler(event, context):
 print(proximo_partido_response("PREBENJAMIN")["response"])
-print (ultimo_resultado_response("ALEVIN"))
-print (clasificacion_response("VETERANO"))
-print (jugadores_destacados_response())
+print (ultimo_resultado_response("ALEVIN")["response"])
+print (clasificacion_response("VETERANO")["response"])
+print (jugadores_destacados_response()["response"])
