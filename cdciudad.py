@@ -60,7 +60,7 @@ torneos = {
         "BENJAMIN" : "BENJAMIN F-8 - TERCERA GALICIA",
         "PREBENJAMIN" : "PREBENJAMIN F-8 - TERCERA GALICIA",
         "VETERANO" : "VETERANOS - PRIMERA GALICIA",
-        "CADETE" : "CADETE SEGUNDA AUTONOMICA"
+        "CADETE" : "CADETE SEGUNDA AUTONÓMICA"
  	}
 
 alias = {
@@ -279,7 +279,9 @@ def ultimo_resultado_response(categoria):
                         ultima_jornada = i["idNumJornada"]
                         ultimo_partido = j
     if ultimo_partido == 0:
-        return "Todavia no ha jugado ningun partido"
+        result["response"] = "Todavia no ha jugado ningun partido"
+        result["end_session"] = True
+        return result
     else:
         score = ultimo_partido["resultado"].split()
         if ultimo_partido["localName"] == team_name:
@@ -323,6 +325,7 @@ def clasificacion_response(categoria):
     segundo = dict()
     result = dict()
     cdciudad = dict()
+    cdciudad["idPosition"] = 0 
     clasificacion = baseURL + "/getClasification?idGroup="
     equipo = get_group(categoria)
     obj = s.get(clasificacion + str(equipo["idGroup"]))
@@ -336,13 +339,16 @@ def clasificacion_response(categoria):
         if equipo["nameTeam"] == team_name:
             cdciudad["Puntos"] = equipo["puntos"]
             cdciudad["idPosition"] = equipo["idPosition"]
-    if cdciudad["idPosition"] != 1:
-        diferencia = primero["Puntos"] - cdciudad["Puntos"]
+    if cdciudad["idPosition"] != 0:
+        if cdciudad["idPosition"] != 1:
+            diferencia = primero["Puntos"] - cdciudad["Puntos"]
 
-        texto = "Nuestro " + alias[categoria] + " va " + posicion[str(equipo["idPosition"])] + " a " + str(diferencia) + " puntos del primero"
+            texto = "Nuestro " + alias[categoria] + " va " + posicion[str(equipo["idPosition"])] + " a " + str(diferencia) + " puntos del primero"
+        else:
+            diferencia = cdciudad["Puntos"] - segundo["Puntos"] 
+            texto = "Nuestro "+ alias[categoria] +" va lider a " + str(diferencia) + " puntos del segundo"
     else:
-        diferencia = cdciudad["Puntos"] - segundo["Puntos"] 
-        texto = "Nuestro "+ alias[categoria] +" va lider a " + str(diferencia) + " puntos del segundo"
+        texto = "La liga no ha empezado"
     result["response"] = texto.replace("  "," ")
     result["end_session"] = True
     return result
@@ -397,7 +403,21 @@ def lambda_handler(event, context):
 
 
 #def lambda_handler(event, context):
-print(proximo_partido_response("PREBENJAMIN")["response"])
-print (ultimo_resultado_response("ALEVIN")["response"])
-print (clasificacion_response("VETERANO")["response"])
+
+categoria = 	{
+    	"A" : "ALEVIN",
+        "B" : "ABSOLUTA",
+        "C" : "JUVENIL",
+        "D" : "ALEVINB",
+        "E" : "BENJAMIN",
+        "F" : "PREBENJAMIN",
+        "G" : "VETERANO" ,
+        "H" : "CADETE",
+        "I" : "OTRA"
+}
+for i in "ABCDEFGH":
+    print("*******************"+categoria[i]+"*********************************************")
+    print(proximo_partido_response(categoria[i])["response"])
+    print (ultimo_resultado_response(categoria[i])["response"])
+    print (clasificacion_response(categoria[i])["response"])
 print (jugadores_destacados_response()["response"])
