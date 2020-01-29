@@ -14,6 +14,7 @@ team_name = "C.D. CIUDAD"
 
 #COPIAR A PARTIR DE AQUI
 
+
 meses = {
         "01" : "enero",
         "02" : "febrero",
@@ -67,13 +68,12 @@ alias = {
         "ABSOLUTA" : "Deportivo Ciudad",
         "JUVENIL"  : "equipo juvenil",
         "ALEVINB"  : "equipo alevín B",
-        "BENJAMIN" : "equipo benjamin",
+        "BENJAMIN" : "equipo benjamín",
         "PREBENJAMIN" : "equipo prebenjamin",
         "VETERANO" : "equipo de veteranos",
         "CADETE" : "equipo cadete"
  	}
 
-## CONVERTIR ESTO EN FUNCIONES
 
 def quita_acentos(s):
     trans_tab = dict.fromkeys(map(ord, u'\u0301\u0308'), None)
@@ -124,12 +124,11 @@ def on_intent(intent_request, session, result,s):
     print("on_intent requestId=" + intent_request['requestId'] +
           ", sessionId=" + session['sessionId'])
 
-    intent = intent_request['intent']
     intent_name = intent_request['intent']['name']
     try:
         categoria = intent_request['intent']['slots']['categoria']["resolutions"]["resolutionsPerAuthority"][0]["values"][0]["value"]["name"].upper() 
     except:
-        categoria = "ALEVIN"
+        categoria = "ABSOLUTA"
         
     # Dispatch to your skill's intent handers
     if intent_name == "proximo_partido":
@@ -229,21 +228,37 @@ def jugadores_destacados_response():
     result = dict()
     jugadores = {
         "1" : "En el equipo alevín juega Pedrito Pedreira, nacido en el 2008, es una de las promesas de la cantera rojilla.",
-        "2" : "En el equipo benjamin destaca David Pedreira, un defensa con estilo propio que puede marcar una época .",
-        "3" : "Oscar Pinchi, exjugador del Deportivo de la Coruña y que actualmente en el Extremadura, jugó en la cantera rojilla durante la decada pasada."
-#        "4" : "marzo",
-#        "5" : "abril",
-#        "6" : "mayo",
-#        "7" : "junio",
-#        "8" : "julio",
-#        "9" : "agosto",
-#        "10" : "septiembre",
-#        "11" : "octubre",
-#        "12" : "noviembre",
-#        "13" : "diciembre"
+        "2" : "En el equipo benjamín destaca David Pedreira, un defensa con estilo propio que puede marcar una época .",
+        "3" : "La universidad de La Coruña nos ha anunciado que va a analizar el misterio de los brazos del portero Raul, que son capaces de estirarse hasta cualquier hueco del arco para evitar que le marquen gol",
+        "4" : 'Santi Alonso, defensa duro con una potente pegada, tiene una maxima "o pasa el balon, o pasa el jugador, pero los dos juntos no".',
+        "5" : "Mateo Rodriguez, este jugador me recuerda las subidas de Capdevila en la banda del SuperDepor.",
+        "6" : "El entrenador Fernando, tras su buena temporada,esta pensando en dar el salto a los banquillos del deportivo de La Coruña",
+        "7" : "No se pierdan a Teo Samaniego, estén atentos a este jugador porque es tan rapido que si parpadean se lo pierden",
+        "8" : "Gonzalo Ortiz, sobrio y rapido al corte, muy elegante sacando el balon",
+        "9" : "Amilcar, un cerrojo en la retaguardia del equipo. Nunca pierde la posicion.",
+        "10" : "Bamba, jugador de dibujos animados, es capaz de hacer diabluras con la pelota.",
+        "11" : "Mateo Vizcaino, con una progresión en ascenso cada vez se encuentra más comodo en la banda izquierda.",
+        "12" : "Luis Mercadal puede jugar en cualquier posicion, si bien donde más cómodo se encuentra es en la retaguardia.",
+        "13" : "Diego Lopez incansable trotador, es un ancla en el ataque sobre el que pivotan todas las jugadas.",
+        "14" : "Pedro Pedreira, si el flequillo no le limita la visión, este chico va a llegar muy lejos",
+        "15" : "Javi Garcia, rápido con la pelota tiene una definición brutal delante del arco contrario.",
+        "16" : "Tom, centrocampista rapido y habilidoso, va a dar mucho que hablar en este final de temporada.",
+        "17" : "Anton, el jugador con más criterio de este equipo, siempre con la cabeza levantada es capaz de dar pases definitivos a sus compañeros.",
+        "18" : "Gabriel está siendo el portero más seguro de esta liga, con paradas decisivas que dan mucha confianza a su equipo.",
+        "19" : "Iago Sessa es el lider de la defensa, sobrio, potente y con una visión de juego que le permiten sacar la pelota con mucho peligro desde atrás.",
+        "20" : "No le llamen Roque! LLamenle correcaminos! Que velocidad tiene este jugador!",
+        "21" : "Iago Vaamonde, letal con la pelota en sus piernas, es el pichichi histórico de este equipo.",
+        "22" : "Un defensa muy rápido siempre atento al corte es Gabi Rivera, que se ha convertido en titular indiscutible",
+        "23" : "Cuando Alex Gonzalez no está sobre el terreno de juego, el equipo lo echa en falta. Y su entrenador lo sabe.",
+        "24" : "Sergio Zas siempre atento a echar una mano a sus compañeros, es el pulmon del equipo en el mediocampo.",
+        "25" : "Hector Guzman hace que lo dificil parezca facil.",
+        "26" : "Un jugador que hay ido de menos a mas es Caleb Reynaga, que este año figura en el equipo titular de cada jornada.",
+        "27" : "Con la progresion actual Rayan promete ser un futuro jugador de la seleccion marroquí absoluta",
+        "28" : "El reciente fichaje bruno seoane se ha adaptado a la perfeccion y ha cubierto los pequeños defectos que el equipo tenía",
+        "29" : "Oscar Pinchi, exjugador del Deportivo de la Coruña y que actualmente en el Extremadura, jugó en la cantera rojilla durante la decada pasada.",
     }   
     
-    result["response"] = jugadores [str(randint(1,2))]
+    result["response"] = jugadores [str(randint(1,29))]
     result["end_session"] = True
     return result
 
@@ -254,7 +269,6 @@ def ultimo_resultado_response(categoria):
     obj = s.get(resultados_equipo + str(equipo["idGroup"]))
     get_result = json.loads (normalize( 'NFC',obj.text))
     resultados = get_result["listJornadaData"]
-    partidos_jugados = []
     ultima_jornada = 0
     ultimo_partido = 0
     for i in resultados:
@@ -284,6 +298,7 @@ def ultimo_resultado_response(categoria):
                     resultado = "ha perdido"
         else:
             rival = convertir_equipo (ultimo_partido["localName"],categoria)
+            diferencia = int(score[0]) - int(score[2])
             condicion = "visitante"
             if  diferencia > 0 :
                 resultado = "ha perdido"
@@ -359,19 +374,28 @@ def proximo_partido_response(categoria):
     return result
     
 def lambda_handler(event, context):
-    
-    if event['request']['type'] == "IntentRequest":
-        return on_intent(event['request'], event['session'],results,s)
-    else:
-        card_title = "DEPORTIVO CIUDAD"
-        speech_output = "Hola Rojillo"
-        reprompt_text = ""
-        session_attributes = {}
-        should_end_session = False
-        return build_response(session_attributes, build_speechlet_response(card_title, speech_output, reprompt_text, should_end_session))
+    try:
+        if event['request']['type'] == "IntentRequest":
+            return on_intent(event['request'], event['session'],results,s)
+        else:
+            card_title = "DEPORTIVO CIUDAD"
+            speech_output = "Hola Rojillo"
+            reprompt_text = ""
+            session_attributes = {}
+            should_end_session = False
+            return build_response(session_attributes, build_speechlet_response(card_title, speech_output, reprompt_text, should_end_session))
+    except:
+            response = status_intent_response()
+            card_title = "DEPORTIVO CIUDAD"
+            speech_output = response["response"]
+            reprompt_text = ""
+            session_attributes = {}
+            should_end_session = response["end_session"]
+            return build_response(session_attributes, build_speechlet_response(card_title, speech_output, reprompt_text, should_end_session))
     print("event.session.application.applicationId=" + event['session']['application']['applicationId'])
-        
-    
+
+
+
 #def lambda_handler(event, context):
 print(proximo_partido_response("PREBENJAMIN")["response"])
 print (ultimo_resultado_response("ALEVIN")["response"])
